@@ -1,0 +1,11 @@
+istiod:
+  telemetry:
+    v2:
+      prometheus:
+        configOverride:
+          inboundSidecar:
+            disable_host_header_fallback: true
+          outboundSidecar:
+            disable_host_header_fallback: true
+          gateway:
+              disable_host_header_fallback: true
