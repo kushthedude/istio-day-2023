@@ -1,6 +1,0 @@
-istiod:
-   meshConfig:
-      enablePrometheusMerge: true
-      accessLogFile: "/dev/stdout"
-      defaultConfig:
-        terminationDrainDuration: 60s
