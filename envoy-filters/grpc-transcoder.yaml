@@ -1,0 +1,61 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: grpc-transcoder-service_a
+spec:
+  # Criteria used to select the specific set of pods/VMs on which this patch configuration should be applied.
+  workloadSelector:
+    # One or more labels that indicate a specific set of pods/VMs
+    labels:
+      app.kubernetes.io/name: service_a
+  configPatches:
+    # Specifies where in the Envoy configuration, the patch should be applied. For example,
+    # an applyTo with HTTP_FILTER is expected to have a match condition on the listeners, with
+    # a network filter selection on envoy.filters.network.http_connection_manager and a sub filter
+    # selection on the HTTP filter relative to which the insertion should be performed.
+    - applyTo: HTTP_FILTER
+      # One or more match conditions to be met before a patch is applied to the generated configuration for a given proxy.
+      match:
+        # PatchContext selects a class of configurations based on the traffic flow direction and workload type.
+        context: SIDECAR_INBOUND
+        # Conditions specified in a listener match must be met for the patch to be applied to a specific
+        # listener across all filter chains, or a specific filter chain inside the listener.
+        listener:
+          # The service port/gateway port to which traffic is being sent/received.
+          # If not specified, matches all listeners.
+          portNumber: 7373
+          filterChain:
+            # Conditions to match a specific filter within a filter chain.
+            #  For standard Envoy filters, use canonical names https://www.envoyproxy.io/docs/envoy/latest/version_history/v1.14.0#deprecated.
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+              subFilter:
+                name: "envoy.filters.http.router"
+      # Patch specifies how the selected object should be modified.
+      patch:
+        # Operation denotes how the patch should be applied to the selected configuration.
+        operation: INSERT_BEFORE
+        # The JSON config of the object being patched. This will be merged using proto merge semantics with the existing proto in the path.
+        value:
+          # Actual Envoy's grpc_json_transcoder_filter configuration. See the following link for all options
+          # https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/filters/http/grpc_json_transcoder/v3/transcoder.proto#grpc-json-transcoder
+          name: envoy.grpc_json_transcoder
+          typed_config:
+            '@type': type.googleapis.com/envoy.extensions.filters.http.grpc_json_transcoder.v3.GrpcJsonTranscoder
+            # A list of strings that supplies the fully qualified service names (i.e. “package_name.service_name”) that the transcoder will translate.
+            services:
+              - proto.TestRPCService
+            # Control options for response JSON.
+            print_options:
+              add_whitespace: true
+              always_print_primitive_fields: true
+              always_print_enums_as_ints: false
+              preserve_proto_field_names: false
+            # Whether to convert gRPC status headers to JSON.
+            convert_grpc_status: true
+            # Configure the behavior when handling requests that cannot be transcoded.
+            request_validation_options:
+              reject_unknown_method: true
+              reject_unknown_query_parameters: true
+            # Supplies the binary content of the proto descriptor set for the gRPC services.
+            proto_descriptor: /proto/api.pb
