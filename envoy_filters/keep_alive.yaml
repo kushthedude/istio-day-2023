@@ -1,0 +1,38 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: ingress-keep-alive
+  namespace: <namespace>
+spec:
+  configPatches:
+  - applyTo: LISTENER
+    match:
+      context: GATEWAY
+      listener:
+        name: 0.0.0.0_8443
+        portNumber: 8443
+spec:
+  configPatches:
+  - applyTo: LISTENER
+    match:
+      context: GATEWAY
+    patch:
+      operation: MERGE
+      value:
+        socket_options:
+        - int_value: 1
+          level: 1
+          name: 9
+          state: STATE_PREBIND
+        - int_value: 9
+          level: 6
+          name: 6
+          state: STATE_PREBIND
+        - int_value: 120
+          level: 6
+          name: 4
+          state: STATE_PREBIND
+        - int_value: 30
+          level: 6
+          name: 5
+          state: STATE_PREBIND

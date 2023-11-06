@@ -1,0 +1,24 @@
+# DENY ALL TEMPLATE
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: deny-all
+  namespace: YOUR_NAMESPACE
+spec:
+  action: DENY
+  rules:
+  - to:
+    - operation:
+        paths: ["*"]
+# ALLOW SPECIFIC SERVICES
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-bar
+  namespace: foo
+spec:
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        namespaces: ["bar"]
