@@ -1,0 +1,13 @@
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: "jwt-validation"
+  namespace: <namespace>
+spec:
+  jwtRules:
+  - fromHeaders:
+    - name: <header-name>
+#    replace with your issuer
+    issuer: https://devauth.dev.devrev-eng.ai/
+    jwksUri: https://devauth.dev.devrev-eng.ai/.well-known/jwks.json
+    forwardOriginalToken: true
