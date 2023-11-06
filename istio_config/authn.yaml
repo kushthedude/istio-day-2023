@@ -8,6 +8,6 @@ spec:
   - fromHeaders:
     - name: <header-name>
 #    replace with your issuer
-    issuer: https://devauth.dev.devrev-eng.ai/
-    jwksUri: https://devauth.dev.devrev-eng.ai/.well-known/jwks.json
+    issuer: <issuer_uri>
+    jwksUri: <jwk_wellknow_uri>
     forwardOriginalToken: true
